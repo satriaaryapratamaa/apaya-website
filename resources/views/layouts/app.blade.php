@@ -126,7 +126,7 @@
                 <div class="collapse {{request()->routeIs('penjualan.*') ? 'show' : ''}}" id="submenuPenjualan">
                     <ul>
                         <li>
-                           <a href="{{route('penjualan.tambahPenjualan')}}" class="{{ request()->routeIs('penjualan.tambahPenjualan') ? 'active' : '' }}">
+                           <a href="{{route('penjualan.create')}}" class="{{ request()->routeIs('penjualan.create') ? 'active' : '' }}">
                                <i class="fas fa-desktop"></i> Tambah Penjualan
                            </a>
                        </li>

@@ -8,7 +8,9 @@ Route::get('/', function () {
 });
 
 Route::get('/index', [PenjualanController::class, 'index'])->name('penjualan.index');
-Route::get('/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');
+// Route::get('/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');
+// Route::post('/tambahJualan', [PenjualanController::class, 'store'])->name('penjualan.tambahPenjualan');
+Route::resource('penjualan', PenjualanController::class);
 
 Route::get('/admin', function () {
     return view('admin.dashboard');
