@@ -115,7 +115,7 @@
                 </a>
             </li>
             <li>
-                <a href='#' class="{{ request()->is('retur') ? 'active' : '' }}">
+                <a href='{{ route('retur.index') }}' class="{{ request()->routeIs('retur.*') ? 'active' : '' }}">
                     <i class="fas fa-undo-alt"></i> Retur Penjualan
                 </a>
             </li>
@@ -148,12 +148,12 @@
             <hr>
             <h5 class="p-1 ms-2">Laporan</h5>
             <li>
-                <a href='#' class="{{ request()->is('retur') ? 'active' : '' }}">
+                <a href='{{ route('laporan.penjualan') }}' class="{{ request()->routeIs('laporan.penjualan') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark-medical"></i> Lap.Penjualan
                 </a>
             </li>
             <li>
-                <a href='#' class="{{ request()->is('retur') ? 'active' : '' }}">
+                <a href='{{ route('laporan.retur') }}' class="{{ request()->routeIs('laporan.retur') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark-medical"></i> Lap.ReturPenjualan
                 </a>
             </li>

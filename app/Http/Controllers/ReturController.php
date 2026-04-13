@@ -3,6 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Retur;
+use App\Models\Penjualan;
+use App\Models\DetailRetur;
+use App\Models\DetailPenjualan;
+use App\Models\Produk;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class ReturController extends Controller
 {
@@ -10,7 +17,7 @@ class ReturController extends Controller
     {
         $returs = Retur::with('details.produk')->latest()->get();
 
-        return view('index', compact('returs'));
+        return view('retur.index', compact('returs'));
     }
 
     public function create()
