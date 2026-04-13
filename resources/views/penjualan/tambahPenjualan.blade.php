@@ -16,12 +16,21 @@
 
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-4">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <form action="{{route('penjualan.store')}}" method="post">
                             @csrf
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <label for="namaPenjualan" class="form-label small fw-semibold text-secondary">Nama Pelanggan</label>
-                                    <input type="text" name="namaPenjualan" class="form-control form-control-lg bg-light border-0 shadow-none" id="namaPenjualan" placeholder="Contoh: Budi Santoso" required>
+                                    <label for="customer_name" class="form-label small fw-semibold text-secondary">Nama Pelanggan</label>
+                                    <input type="text" name="customer_name" class="form-control form-control-lg bg-light border-0 shadow-none" id="customer_name" placeholder="Contoh: Budi Santoso" required>
                                 </div>
 
                                 <div class="col-12">
@@ -30,11 +39,30 @@
                                     <div class="form-text">ID Transaksi dibuat otomatis oleh sistem.</div>
                                 </div>
 
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold text-secondary">Produk yang dibeli</label>
+                                    <table class="table table-bordered" id="productTable">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th style="width: 40%">Produk</th>
+                                                <th style="width: 20%">Qty</th>
+                                                <th style="width: 35%">Harga Satuan</th>
+                                                <th style="width: 15%">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="addProduct">
+                                        <i class="bi bi-plus-circle me-1"></i>Tambah Produk
+                                    </button>
+                                </div>
+                                <input type="hidden" name="tanggal_penjualan" value="{{date('Y-m-d')}}">
+
                                 <div class="col-md-7">
-                                    <label for="totalBayar" class="form-label small fw-semibold text-secondary">Total Bayar</label>
+                                    <label for="total_bayar" class="form-label small fw-semibold text-secondary">Total Bayar</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-0">Rp</span>
-                                        <input type="number" name="totalBayar" class="form-control form-control-lg bg-light border-0 shadow-none" id="totalBayar" placeholder="0" required>
+                                        <input type="number" name="total_bayar" class="form-control form-control-lg bg-light border-0 shadow-none" id="total_bayar" placeholder="0" required>
                                     </div>
                                 </div>
 
@@ -58,4 +86,66 @@
             </div>
         </div>
     </div>
+    <script>
+        let rowIdx = 0;
+        document.getElementById('addProduct').addEventListener('click', function() {
+            rowIdx++;
+            const tbody = document.querySelector('#productTable tbody');
+            const newRow =`
+                <tr id="row${rowIdx}">
+                    <td>
+                        <select name="items[${rowIdx}][produks_id]" class="form-select select-produk" required>
+                            <option value="">---Pilih---</option>
+                            @foreach($produks as $p)
+                                <option value="{{$p->id}}" data-harga="{{$p->harga_barang}}">{{$p->nama_produk}} (Stok: {{$p->stok}})</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="items[${rowIdx}][qty]" class="form-control qty-input min-1 required">
+                    </td>
+                    <td>
+                        <input type="number" name="items[${rowIdx}][harga]" class="form-control harga-input" readonly>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove"></button></td>
+                </tr>`;
+                tbody.insertAdjacentHTML('beforeend', newRow);
+
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('select-produk')) {
+                const harga = e.target.options[e.target.selectedIndex].dataset.harga;
+                const row = e.target.closest('tr');
+                row.querySelector('.harga-input').value = harga;
+                updateTotal();
+            }
+        });
+
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('qty-input')) {
+                updateTotal();
+            }
+        })
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove')) {
+                e.target.closest('tr').remove();
+                updateTotal();
+            }
+        });
+
+        function updateTotal() {
+            let total = 0;
+            document.querySelectorAll('#productTable tbody tr').forEach(row => {
+                const qty = row.querySelector('.qty-input').value;
+                const harga = row.querySelector('.harga-input').value;
+                total += (parseFloat(qty) * parseFloat(harga));
+            });
+            document.getElementById('total_bayar').value = total;
+        }
+
+
+    </script>
 @endsection
