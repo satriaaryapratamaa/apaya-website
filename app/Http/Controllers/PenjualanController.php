@@ -26,7 +26,7 @@ class PenjualanController extends Controller
     {
         $produks = Produk::where('stok', '>', 0)->get(); //mengambil data produk yang tersedia (stok > 0) untuk ditampilkan
 
-        return view('penjualan.create', compact('produks'));
+        return view('penjualan.tambahPenjualan', compact('produks'));
     }
 
     public function store(Request $request)
@@ -88,7 +88,7 @@ class PenjualanController extends Controller
             if($request->wantsJson()){
                 return response()->json(['message' => 'Penjualan berhaasil disimpan', 'data' => $penjualan->load('details.produk')], 201);
             }
-            return redirect->route('penjualan.index')->with('success', 'Penjualan berhasil disimpan');
+            return redirect()->route('penjualan.index')->with('success', 'Penjualan berhasil disimpan');
         } catch (\Exception $e) {
             DB::rollback();
             if ($request->wantsJson()) {
@@ -96,5 +96,12 @@ class PenjualanController extends Controller
             }
             return redirect->back()->with('error', 'Terjadi kesalahan saat menambahkan penjualan:' . $e->getMessage()->withInput());
         }
+    }
+
+    public function show($id)
+    {
+        $detail_penjualan = Penjualan::with('details.produk')->findOrFail($id);
+
+        return view('penjualan.index', compact('detail_penjualan'));
     }
 }

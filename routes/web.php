@@ -1,10 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PenjualanController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('penjualan.dashboard');
 });
+
+Route::get('/index', [PenjualanController::class, 'index'])->name('penjualan.index');
+Route::get('/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');
 
 Route::get('/admin', function () {
     return view('admin.dashboard');
