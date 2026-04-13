@@ -25,7 +25,7 @@
                                 <td class="text-primary fw-bold">{{$p->nomor_invoice}}</td>
                                 <td>{{\Carbon\Carbon::parse($p->tanggal_penjualan)->format('d M Y')}}</td>
                                 <td>{{$p->customer_name ?? 'Umum'}}</td>
-                                <td>Rp{{number_format($p->details->sum('subtotal', 0, ',', '.'))}}</td>
+                                <td>Rp{{number_format($p->details->sum('subtotal'), 0, ',', '.')}}</td>
                                 <td>
                                     @if($p->status == 'lunas')
                                         <span class="badge bg-success">Lunas</span>

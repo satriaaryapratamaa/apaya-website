@@ -38,7 +38,7 @@ class PenjualanController extends Controller
             'customer_name'     => 'nullable|string|max:255',
             'status'            => 'required|in:lunas,hutang,dibatalkan',
             'items'             => 'required|array',
-            'items.*.produk_id' => 'required|exists:produks,id',
+            'items.*.produks_id' => 'required|exists:produks,id',
             'items.*.qty'       => 'required|integer|min:1',
             'items.*.harga'     => 'required|numeric',
             'total_bayar'       => 'required|numeric'
@@ -48,7 +48,7 @@ class PenjualanController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
-            return redirect()->back()->withErorrs($validator)->withInput();
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
 
@@ -65,7 +65,7 @@ class PenjualanController extends Controller
             //simpan detail penjualaan
             foreach ($request->items as $item)
                 {
-                    $produk = Produk::findOrFail($item['produk_id']);
+                    $produk = Produk::findOrFail($item['produks_id']);
 
                     //cek stok produk
                     if ($produk->stok < $item['qty']) {
@@ -73,10 +73,11 @@ class PenjualanController extends Controller
                     }
 
                     DetailPenjualan::create([
-                        'penjualan_id' => $penjualan->id,
-                        'produk_id' => $item['produk_id'],
+                        'penjualans_id' => $penjualan->id,
+                        'produks_id' => $item['produks_id'],
                         'jumlah' => $item['qty'],
-                        'harga_satuan' => $item['harga']
+                        'harga_satuan' => $item['harga'],
+                        'subtotal' => $item['qty'] * $item['harga']
                     ]);
 
                     //update stok produk
@@ -94,7 +95,7 @@ class PenjualanController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['errors' => 'terjadi kesalahan saat menambahkan penjualan' .$e->getMessage()], 500);
             }
-            return redirect->back()->with('error', 'Terjadi kesalahan saat menambahkan penjualan:' . $e->getMessage()->withInput());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menambahkan penjualan:' . $e->getMessage())->withInput();
         }
     }
 
