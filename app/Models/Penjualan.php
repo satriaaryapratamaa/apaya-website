@@ -9,20 +9,22 @@ class Penjualan extends Model
     protected $table = 'penjualans';
 
     protected $fillable = [
-        'nomor_invoice',
+        'produk_id',
         'tanggal_penjualan',
-        'total_bayar',
-        'customer_name',
-        'status',
+        'jumlah_terjual',
+        'harga_jual',
+        'total_omzet',
+        'total_modal',
+        'total_keuntungan',
     ];
 
-    public function details()
+    public function produk()
     {
-        return $this->hasMany(DetailPenjualan::class, 'penjualans_id');
+        return $this->belongsTo(Produk::class, 'produk_id');
     }
 
     public function returs()
     {
-        return $this->hasMany(Retur::class);
+        return $this->hasMany(Retur::class, 'produk_id', 'produk_id');
     }
 }

@@ -10,13 +10,13 @@ class LaporanController extends Controller
 {
     public function penjualan()
     {
-        $penjualans = Penjualan::with('details.produk')->latest()->get();
+        $penjualans = Penjualan::with('produk')->latest()->get();
         return view('laporan.penjualan', compact('penjualans'));
     }
 
     public function retur()
     {
-        $returs = Retur::with('details.produk')->latest()->get();
+        $returs = Retur::with('produk')->latest()->get();
         return view('laporan.retur', compact('returs'));
     }
 }
