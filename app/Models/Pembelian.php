@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Retur extends Model
+class Pembelian extends Model
 {
+    protected $table = 'pembelians';
+
     protected $fillable = [
         'produk_id',
-        'jumlah_retur',
-        'tipe_retur',
-        'tanggal_retur',
-        'alasan_retur',
+        'jumlah_masuk',
+        'harga_beli_satuan', // Untuk melacak jika ada perubahan harga dari supplier
+        'tanggal_pembelian',
+        'keterangan',
     ];
 
     public function produk(): BelongsTo

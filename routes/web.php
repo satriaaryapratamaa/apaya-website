@@ -2,17 +2,18 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PenjualanController;
-
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReturController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/index', [PenjualanController::class, 'index'])->name('penjualan.index');
-// Route::get('/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');
-// Route::post('/tambahJualan', [PenjualanController::class, 'store'])->name('penjualan.tambahPenjualan');
-Route::resource('penjualan', PenjualanController::class);
+Route::get('/admin/pages/index', [PenjualanController::class, 'index'])->name('penjualan.index');
+Route::get('/admin/pages/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');
+Route::post('/tambahJualan', [PenjualanController::class, 'store'])->name('penjualan.tambahPenjualan');
+Route::resource('/admin/pages/penjualan', PenjualanController::class);
 
-use App\Http\Controllers\ReturController;
+
 Route::resource('retur', ReturController::class);
 
 Route::get('/api/penjualan/{id}', function($id) {
@@ -22,7 +23,7 @@ Route::get('/api/penjualan/{id}', function($id) {
         ->get();
 });
 
-use App\Http\Controllers\LaporanController;
+
 Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
 Route::get('/laporan/retur', [LaporanController::class, 'retur'])->name('laporan.retur');
 

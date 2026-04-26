@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Retur;
-use App\Models\Penjualan;
-use App\Models\DetailRetur;
-use App\Models\DetailPenjualan;
 use App\Models\Produk;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -15,85 +12,62 @@ class ReturController extends Controller
 {
     public function index()
     {
-        $returs = Retur::with('details.produk')->latest()->get();
+        $returs = Retur::with('produk')->latest()->get();
 
         return view('retur.index', compact('returs'));
     }
 
     public function create()
     {
-        $penjualans = Penjualan::whereMonth('tanggal_penjualan', now()->month)->get();
-        return view('retur.create', compact('penjualans'));
+        // Ambil daftar produk untuk dipilih yang mana yang diretur
+        $produks = Produk::all();
+        return view('retur.create', compact('produks'));
     }
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'penjualan_id' => 'required|exists:penjualans,id',
+        $validator = Validator::make($request->all(), [
+            'produk_id'     => 'required|exists:produks,id',
+            'jumlah_retur'  => 'required|integer|min:1',
+            'tipe_retur'    => 'required|in:masuk_stok,buang_rusak',
             'tanggal_retur' => 'required|date',
-            'total_retur' => 'required|numeric',
-            'alasan_retur' => 'nullable|string',
-            'items' => 'required|array',
-            'items.*.produk_id' => 'required|exists:produks,id',
-            'items.*.qty' => 'required|integer|min:1',
-            'items.*.harga' => 'required|numeric',
+            'alasan_retur'  => 'nullable|string',
         ]);
 
-        //validasi untuk mobile
-        if ($validator->fails()){
-            if($request->wantsJson()){
-                return response()->json([
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+        if ($validator->fails()) {
+            return $request->wantsJson()
+                ? response()->json(['errors' => $validator->errors()], 422)
+                : redirect()->back()->withErrors($validator)->withInput();
         }
 
         DB::beginTransaction();
 
         try {
-            //simpan data retur
+            // Simpan data retur (Langsung per produk, sesuai revisi tanpa nota)
             $retur = Retur::create([
-                'penjualan_id' => $request->penjualan_id,
+                'produk_id'     => $request->produk_id,
+                'jumlah_retur'  => $request->jumlah_retur,
+                'tipe_retur'    => $request->tipe_retur,
                 'tanggal_retur' => $request->tanggal_retur,
-                'total_retur' => $request->total_retur,
-                'alasan_retur' => $request->alasan_retur,
+                'alasan_retur'  => $request->alasan_retur,
             ]);
 
-            //simpan detail retur dan kembalikan stok barang
-            foreach ($request->items as $item) {
-                DetailRetur::create([
-                    'retur_id' => $retur->id,
-                    'produk_id' => $item['produk_id'],
-                    'jumlah_retur' => $item['qty'],
-                ]);
+            // Logika Update Stok
+            $produk = Produk::findOrFail($request->produk_id);
 
-                //cari data pembelian
-                $detailpenjualan = DetailPenjualan::where('penjualan_id', $request->penjualan_id)
-                    ->where('produk_id', $item['produk_id'])->first();
-
-                if (!$detailpenjualan){
-                    throw new \Exception('Data penjualan produk tidak ditemukan');
-                }
-
-                if ($item['qty'] > $detailpenjualan->jumlah) {
-                    throw new \Exception('Jumlah barang yang diretur melebihi jumlah barang yang dibeli');
-                }
-
-                if (!$detailpenjualan->decrement('jumlah', $item['qty'])) {
-                    throw new \Exception('Gagal mengupdate jumlah penjualan');
-                }
-
-                //kembalikan stok barang
-                $produk = Produk::findOrFail($item['produk_id']);
-                $produk->increment('stok', $item['qty']);;
+            // Jika tipe retur adalah 'masuk_stok' (barang kembali ke toko dan bisa dijual lagi)
+            if ($request->tipe_retur == 'masuk_stok') {
+                $produk->increment('stok', $request->jumlah_retur);
             }
+            // Jika tipe 'buang_rusak', stok tidak bertambah karena barang dibuang.
+            // Data tetap disimpan di tabel retur sebagai catatan log kenapa stok berkurang/hilang.
 
             DB::commit();
 
             if ($request->wantsJson()) {
                 return response()->json([
-                    'message' => 'retur berhasil disimpan',
-                    'data' => $retur->load('details.produk')
+                    'message' => 'Retur berhasil disimpan',
+                    'data' => $retur->load('produk')
                 ], 201);
             }
 
@@ -102,14 +76,9 @@ class ReturController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
 
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'errors' => 'Gagal menyimpan retur:' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'terjadi kesalahan saat menyimpan retur:' . $e->getMessage())->withInput();
+            return $request->wantsJson()
+                ? response()->json(['errors' => 'Gagal menyimpan retur: ' . $e->getMessage()], 500)
+                : redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
-
     }
 }

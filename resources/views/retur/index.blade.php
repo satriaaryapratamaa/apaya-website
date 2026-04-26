@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('adminlte::page')
 
 @section('content')
 <div class="card border-0 shadow-sm p-4 mb-4 rounded-3">
