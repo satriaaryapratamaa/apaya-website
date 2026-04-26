@@ -3,6 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Retur;
+use App\Models\Penjualan;
+use App\Models\DetailRetur;
+use App\Models\DetailPenjualan;
+use App\Models\Produk;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ReturController extends Controller
 {
@@ -10,7 +17,7 @@ class ReturController extends Controller
     {
         $returs = Retur::with('details.produk')->latest()->get();
 
-        return view('index', compact('returs'));
+        return view('retur.index', compact('returs'));
     }
 
     public function create()
@@ -58,6 +65,7 @@ class ReturController extends Controller
                     'retur_id' => $retur->id,
                     'produk_id' => $item['produk_id'],
                     'jumlah_retur' => $item['qty'],
+                    'harga_retur' => $item['harga'],
                 ]);
 
                 //cari data pembelian
@@ -78,7 +86,7 @@ class ReturController extends Controller
 
                 //kembalikan stok barang
                 $produk = Produk::findOrFail($item['produk_id']);
-                $produk->increment('stok', $item['qty']);;
+                $produk->increment('stok', $item['qty']);
             }
 
             DB::commit();
