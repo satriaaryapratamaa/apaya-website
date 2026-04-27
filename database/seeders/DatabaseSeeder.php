@@ -11,8 +11,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Pastikan tidak dobel, kita truncate dulu (Opsional, tapi membatasi duplikasi saat refresh)
-        // Note: pastikan tidak ada foregin key constraint errors saat truncate.
+        
         
         // Add Products (Adjusted for main schema)
         $produkId1 = DB::table('produks')->insertGetId([

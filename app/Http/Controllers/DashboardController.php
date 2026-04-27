@@ -19,7 +19,6 @@ class DashboardController extends Controller
         $lastMonth = Carbon::now()->subMonth()->month;
         $lastMonthYear = Carbon::now()->subMonth()->year;
 
-        // --- 1. Total Penjualan & Keuntungan (Bulan Ini) ---
         $statsCurrent = Penjualan::whereMonth('tanggal_penjualan', $currentMonth)
                             ->whereYear('tanggal_penjualan', $currentYear)
                             ->select(
@@ -30,7 +29,6 @@ class DashboardController extends Controller
         $totalJual = $statsCurrent->total_jual ?? 0;
         $totalUntung = $statsCurrent->total_untung ?? 0;
 
-        // --- 1b. Total Penjualan & Keuntungan (Bulan Kemarin untuk Persentase) ---
         $statsLast = Penjualan::whereMonth('tanggal_penjualan', $lastMonth)
                             ->whereYear('tanggal_penjualan', $lastMonthYear)
                             ->select(
@@ -44,7 +42,6 @@ class DashboardController extends Controller
         $percentJual = $lastTotalJual > 0 ? (($totalJual - $lastTotalJual) / $lastTotalJual) * 100 : ($totalJual > 0 ? 100 : 0);
         $percentUntung = $lastTotalUntung > 0 ? (($totalUntung - $lastTotalUntung) / $lastTotalUntung) * 100 : ($totalUntung > 0 ? 100 : 0);
 
-        // --- 2. Total Pembelian (Bulan Ini & Bulan Lalu) ---
         $totalBeli = \App\Models\Pembelian::whereMonth('tanggal_pembelian', $currentMonth)
                             ->whereYear('tanggal_pembelian', $currentYear)
                             ->sum(DB::raw('jumlah_masuk * harga_beli_satuan'));
@@ -55,7 +52,6 @@ class DashboardController extends Controller
 
         $percentBeli = $lastTotalBeli > 0 ? (($totalBeli - $lastTotalBeli) / $lastTotalBeli) * 100 : ($totalBeli > 0 ? 100 : 0);
 
-        // --- 3. Data Grafik Penjualan (12 Bulan ke belakang) ---
         $labelBulan = [];
         $dataPenjualan = [];
         for ($i = 11; $i >= 0; $i--) {
@@ -68,7 +64,6 @@ class DashboardController extends Controller
             $dataPenjualan[] = $sumSales;
         }
 
-        // --- 4. Produk Terlaris ---
         $topProducts = Penjualan::with('produk')
                             ->whereMonth('tanggal_penjualan', $currentMonth)
                             ->whereYear('tanggal_penjualan', $currentYear)
@@ -78,10 +73,8 @@ class DashboardController extends Controller
                             ->take(5)
                             ->get();
 
-        // --- 5. Riwayat Transaksi Terakhir ---
         $recentTransactions = Penjualan::latest('tanggal_penjualan')->latest('id')->take(4)->get();
 
-        // --- 6. Histori Perubahan Stok (Gabungan Pembelian dan Penjualan) ---
         $recentPembelian = \App\Models\Pembelian::with('produk')->latest('tanggal_pembelian')->latest('id')->take(5)->get()->map(function($item) {
             return [
                 'waktu' => Carbon::parse($item->tanggal_pembelian)->format('d M Y - 10:00'),
@@ -102,7 +95,6 @@ class DashboardController extends Controller
             ];
         });
 
-        // Merge and sort desc by mock sort_date
         $stockMovements = collect($recentPembelian)->merge($recentPenjualan)
                             ->sortByDesc('sort_date')
                             ->take(4)

@@ -61,7 +61,7 @@
                                 </div>
 
                                 <div class="col-12 mt-5">
-                                    <button type="submit" class="btn btn-primary w-100">Hitung Sistem Delta & Simpan</button>
+                                    <button type="submit" class="btn btn-primary w-100">Simpan Data Penjualan</button>
                                     <a href="{{route('penjualan.index')}}" class="btn btn-link w-100 text-decoration-none text-muted mt-2">Batalkan</a>
                                 </div>
                             </div>

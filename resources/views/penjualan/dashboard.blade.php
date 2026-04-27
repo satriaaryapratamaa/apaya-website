@@ -72,7 +72,7 @@
 </style>
 
 <div class="container-fluid pt-4" style="min-height: 120vh;">
-    <!-- Header -->
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold mb-0" style="color: #0f172a">Dashboard Penjualan</h3>
         <div class="d-flex gap-3">
@@ -80,9 +80,8 @@
         </div>
     </div>
 
-    <!-- 3 Summary Cards -->
     <div class="row">
-        <!-- Card 1 -->
+        
         <div class="col-md-4">
             <div class="db-card">
                 <div class="d-flex justify-content-between">
@@ -102,7 +101,7 @@
                 </div>
             </div>
         </div>
-        <!-- Card 2 -->
+        
         <div class="col-md-4">
             <div class="db-card">
                 <div class="d-flex justify-content-between">
@@ -122,7 +121,7 @@
                 </div>
             </div>
         </div>
-        <!-- Card 3 -->
+        
         <div class="col-md-4">
             <div class="db-card">
                 <div class="d-flex justify-content-between">
@@ -144,9 +143,8 @@
         </div>
     </div>
 
-    <!-- Chart & Products -->
     <div class="row">
-        <!-- Chart -->
+        
         <div class="col-lg-8">
             <div class="db-card h-100 mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -160,7 +158,7 @@
                 </div>
             </div>
         </div>
-        <!-- Top Products -->
+        
         <div class="col-lg-4">
             <div class="db-card h-100 mb-4">
                 <div class="card-title-custom">Produk Terlaris</div>
@@ -182,9 +180,8 @@
         </div>
     </div>
 
-    <!-- Tables row -->
     <div class="row">
-        <!-- Transaction Table -->
+        
         <div class="col-lg-7">
             <div class="db-card h-100 mb-4">
                 <div class="card-title-custom">Riwayat Transaksi Terakhir</div>
@@ -224,7 +221,7 @@
                 </div>
             </div>
         </div>
-        <!-- Stock Changes Table -->
+        
         <div class="col-lg-5">
             <div class="db-card h-100 mb-4">
                 <div class="card-title-custom">Histori Perubahan Stok</div>
@@ -265,7 +262,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Line Area Chart Initialization
+
         const ctx = document.getElementById('salesChart').getContext('2d');
         
         let gradient = ctx.createLinearGradient(0, 0, 0, 300);

@@ -23,7 +23,7 @@ class PenjualanController extends Controller
 
     public function create()
     {
-        // Menampilkan semua produk untuk dicek sisa stoknya
+
         $produks = Produk::all();
         return view('penjualan.tambahPenjualan', compact('produks'));
     }
@@ -49,27 +49,26 @@ class PenjualanController extends Controller
             foreach ($request->items as $item) {
                 $produk = Produk::findOrFail($item['produk_id']);
 
-                // Sesuai teks referensi: Stok Sebelumnya
                 $stok_sebelumnya = $produk->stok_saat_ini ?? 0;
                 
-                // Sesuai teks referensi: Jumlah Pembelian
                 $jumlah_pembelian = Pembelian::where('produks_id', $produk->id)
                     ->whereDate('tanggal_pembelian', $request->tanggal_penjualan)
                     ->sum('jumlah_masuk');
 
-                // Sesuai teks referensi: Stok Saat Ini (dimasukkan dari input form fisik)
+                $total_retur = \App\Models\Retur::where('produk_id', $produk->id)
+                    ->whereDate('tanggal_retur', $request->tanggal_penjualan)
+                    ->sum('jumlah_retur');
+
                 $stok_saat_ini_fisik = $item['stok_saat_ini_fisik'];
 
-                // Rumus Delta Dosen:
-                // Total Penjualan = (Stok Sebelumnya + Jumlah Pembelian) - Stok Saat Ini
-                $jumlah_terjual = ($stok_sebelumnya + $jumlah_pembelian) - $stok_saat_ini_fisik;
+                $formula = $stok_saat_ini_fisik - $jumlah_pembelian - $total_retur - $stok_sebelumnya;
+                $jumlah_terjual = abs($formula);
 
                 if ($jumlah_terjual > 0) {
                     $total_omzet = $jumlah_terjual * $produk->harga_jual;
                     $total_modal = $jumlah_terjual * $produk->harga_beli;
                     $total_keuntungan = $total_omzet - $total_modal;
 
-                    // Mengkalkulasi sistem log penjualan harian
                     Penjualan::create([
                         'produk_id'         => $produk->id,
                         'tanggal_penjualan' => $request->tanggal_penjualan,
@@ -81,7 +80,6 @@ class PenjualanController extends Controller
                     ]);
                 }
 
-                // Setelah perhitungan selesai, sistem mengupdate Master Data menjadi stok saat ini secara otomatis
                 $produk->update(['stok_saat_ini' => $stok_saat_ini_fisik]);
             }
 

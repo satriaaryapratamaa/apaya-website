@@ -16,35 +16,26 @@
                             <th>Kode Barang (SKU)</th>
                             <th>Nama Produk</th>
                             <th>Satuan</th>
-                            <th class="text-primary">Stok Masuk (Beli)</th>
                             <th class="text-danger">Qty Terjual</th>
-                            <th class="text-success">Sisa Stok Saat Ini</th>
                             <th>Harga Jual</th>
                             <th>Total Penjualan</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($penjualans as $p)
-                            @php
-                                $stok_beli = \App\Models\Pembelian::where('produks_id', $p->produk_id)
-                                    ->whereDate('tanggal_pembelian', $p->tanggal_penjualan)
-                                    ->sum('jumlah_masuk');
-                            @endphp
                             <tr>
                                 <td class="fw-bold text-secondary">TRX-{{ date('Ymd', strtotime($p->tanggal_penjualan)) }}-{{ str_pad($p->id, 4, '0', STR_PAD_LEFT) }}</td>
                                 <td>{{ \Carbon\Carbon::parse($p->tanggal_penjualan)->format('d M Y') }}</td>
                                 <td class="font-monospace text-muted">{{ $p->produk?->sku ?? '-' }}</td>
                                 <td class="fw-bold">{{ $p->produk?->nama_produk ?? 'Produk Terhapus' }}</td>
                                 <td>Pcs</td>
-                                <td class="text-primary fw-bold">+{{ $stok_beli }}</td>
                                 <td class="text-danger fw-bold">-{{ $p->jumlah_terjual }}</td>
-                                <td class="text-success fw-bold">{{ $p->produk?->stok_saat_ini ?? 0 }}</td>
                                 <td>Rp {{ number_format($p->harga_jual, 0, ',', '.') }}</td>
                                 <td class="fw-bold">Rp {{ number_format($p->total_omzet, 0, ',', '.') }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center py-4">Belum ada catatan penjualan harian hasil kalkulasi otomatis (Delta Stok)</td>
+                                <td colspan="8" class="text-center py-4">Belum ada riwayat penjualan.</td>
                             </tr>
                         @endforelse
                     </tbody>
