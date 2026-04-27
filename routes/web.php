@@ -5,8 +5,10 @@ use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReturController;
+use App\Http\Controllers\ProdukController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::resource('produk', ProdukController::class);
 
 Route::get('/admin/pages/index', [PenjualanController::class, 'index'])->name('penjualan.index');
 Route::get('/admin/pages/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');

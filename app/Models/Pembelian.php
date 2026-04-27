@@ -9,7 +9,7 @@ class Pembelian extends Model
     protected $table = 'pembelians';
 
     protected $fillable = [
-        'produk_id',
+        'produks_id',
         'jumlah_masuk',
         'harga_beli_satuan', // Untuk melacak jika ada perubahan harga dari supplier
         'tanggal_pembelian',
@@ -18,6 +18,6 @@ class Pembelian extends Model
 
     public function produk(): BelongsTo
     {
-        return $this->belongsTo(Produk::class, 'produk_id');
+        return $this->belongsTo(Produk::class, 'produks_id');
     }
 }

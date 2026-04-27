@@ -315,82 +315,89 @@ return [
             'type' => 'sidebar-menu-search',
             'text' => 'search',
         ],
+        ['header' => 'MENU UTAMA'],
         [
-            'text' => 'blog',
-            'url' => 'admin/blog',
-            'can' => 'manage-blog',
+            'text' => 'Dashboard',
+            'route'  => 'dashboard',
+            'icon' => 'fas fa-fw fa-home',
         ],
         [
-            'text' => 'pages',
-            'url' => 'admin/pages',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
-        ],
-        ['header' => 'account_settings'],
-        [
-            'text' => 'profile',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user',
-        ],
-        [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-lock',
-        ],
-        [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
+            'text'    => 'Master Data',
+            'icon'    => 'fas fa-fw fa-database',
             'submenu' => [
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Produk',
+                    'route'  => 'produk.index',
+                    'icon' => 'fas fa-fw fa-box',
                 ],
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                        ],
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                            'submenu' => [
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                            ],
-                        ],
-                    ],
+                    'text' => 'Supplier',
+                    'url'  => '#',
+                    'icon' => 'fas fa-fw fa-truck-loading',
                 ],
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Kategori',
+                    'url'  => '#',
+                    'icon' => 'fas fa-fw fa-tags',
                 ],
             ],
         ],
-        ['header' => 'labels'],
         [
-            'text' => 'important',
-            'icon_color' => 'red',
-            'url' => '#',
+            'text'    => 'Transaksi',
+            'icon'    => 'fas fa-fw fa-exchange-alt',
+            'submenu' => [
+                [
+                    'text' => 'Penjualan',
+                    'route'  => 'penjualan.index',
+                    'icon' => 'fas fa-fw fa-shopping-cart',
+                ],
+                [
+                    'text' => 'Pembelian',
+                    'url'  => '#',
+                    'icon' => 'fas fa-fw fa-truck',
+                ],
+                [
+                    'text' => 'Biaya',
+                    'url'  => '#',
+                    'icon' => 'fas fa-fw fa-money-bill-wave',
+                ],
+                [
+                    'text' => 'Retur',
+                    'route'  => 'retur.index',
+                    'icon' => 'fas fa-fw fa-undo',
+                ],
+            ],
         ],
         [
-            'text' => 'warning',
-            'icon_color' => 'yellow',
-            'url' => '#',
+            'text'    => 'Laporan',
+            'icon'    => 'fas fa-fw fa-chart-line',
+            'submenu' => [
+                [
+                    'text' => 'Laporan Penjualan',
+                    'url'  => '#',
+                    'icon' => 'fas fa-fw fa-file-invoice-dollar',
+                ],
+                [
+                    'text' => 'Laporan Pembelian',
+                    'url'  => '#',
+                    'icon' => 'fas fa-fw fa-file-invoice',
+                ],
+                [
+                    'text' => 'Laporan Biaya',
+                    'url'  => '#',
+                    'icon' => 'fas fa-fw fa-file-alt',
+                ],
+                [
+                    'text' => 'Laporan Laba Rugi',
+                    'url'  => '#',
+                    'icon' => 'fas fa-fw fa-chart-pie',
+                ],
+            ],
         ],
         [
-            'text' => 'information',
-            'icon_color' => 'cyan',
-            'url' => '#',
+            'text' => 'Pengguna',
+            'url'  => '#',
+            'icon' => 'fas fa-fw fa-users',
         ],
     ],
 

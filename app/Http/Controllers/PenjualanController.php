@@ -36,7 +36,7 @@ class PenjualanController extends Controller
             'tanggal_penjualan' => 'required|date',
             'items'             => 'required|array',
             'items.*.produk_id' => 'required|exists:produks,id',
-            'items.*.stok_sisa' => 'required|integer|min:0', // User input sisa di rak
+            'items.*.stok_saat_ini_fisik' => 'required|integer|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -49,24 +49,27 @@ class PenjualanController extends Controller
             foreach ($request->items as $item) {
                 $produk = Produk::findOrFail($item['produk_id']);
 
-                // Ambil stok awal (stok saat ini di database sebelum update)
-                $stok_awal = $produk->stok;
-
-                // Ambil total pembelian hari ini (kalau ada)
-                $total_pembelian = Pembelian::where('produk_id', $produk->id)
+                // Sesuai teks referensi: Stok Sebelumnya
+                $stok_sebelumnya = $produk->stok_saat_ini ?? 0;
+                
+                // Sesuai teks referensi: Jumlah Pembelian
+                $jumlah_pembelian = Pembelian::where('produks_id', $produk->id)
                     ->whereDate('tanggal_pembelian', $request->tanggal_penjualan)
                     ->sum('jumlah_masuk');
 
-                // Hitung jumlah terjual: (Stok Awal + Pembelian) - Sisa Stok
-                $jumlah_terjual = ($stok_awal + $total_pembelian) - $item['stok_sisa'];
+                // Sesuai teks referensi: Stok Saat Ini (dimasukkan dari input form fisik)
+                $stok_saat_ini_fisik = $item['stok_saat_ini_fisik'];
 
-                // Jika hasil negatif (stok sisa lebih banyak dari stok awal + beli), biarin atau set 0
+                // Rumus Delta Dosen:
+                // Total Penjualan = (Stok Sebelumnya + Jumlah Pembelian) - Stok Saat Ini
+                $jumlah_terjual = ($stok_sebelumnya + $jumlah_pembelian) - $stok_saat_ini_fisik;
+
                 if ($jumlah_terjual > 0) {
                     $total_omzet = $jumlah_terjual * $produk->harga_jual;
                     $total_modal = $jumlah_terjual * $produk->harga_beli;
                     $total_keuntungan = $total_omzet - $total_modal;
 
-                    // Simpan ke log penjualan harian
+                    // Mengkalkulasi sistem log penjualan harian
                     Penjualan::create([
                         'produk_id'         => $produk->id,
                         'tanggal_penjualan' => $request->tanggal_penjualan,
@@ -78,8 +81,8 @@ class PenjualanController extends Controller
                     ]);
                 }
 
-                // Update stok utama di tabel produks menjadi sisa stok terbaru
-                $produk->update(['stok' => $item['stok_sisa']]);
+                // Setelah perhitungan selesai, sistem mengupdate Master Data menjadi stok saat ini secara otomatis
+                $produk->update(['stok_saat_ini' => $stok_saat_ini_fisik]);
             }
 
             DB::commit();

@@ -12,28 +12,28 @@
             <thead class="table-light">
                 <tr>
                     <th>ID Retur</th>
-                    <th>Invoice Penjualan</th>
+                    <th>Barang Diretur</th>
+                    <th>Jumlah</th>
+                    <th>Tindakan / Kondisi</th>
                     <th>Tanggal Retur</th>
-                    <th>Total Retur</th>
                     <th>Alasan</th>
-                    <th>Detail Barang</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($returs as $retur)
                 <tr>
                     <td>#{{ $retur->id }}</td>
-                    <td>{{ $retur->penjualan->nomor_invoice ?? '-' }}</td>
-                    <td>{{ \Carbon\Carbon::parse($retur->tanggal_retur)->format('d M Y') }}</td>
-                    <td class="text-danger fw-bold">Rp {{ number_format($retur->total_retur, 0, ',', '.') }}</td>
-                    <td>{{ $retur->alasan_retur ?? '-' }}</td>
+                    <td class="fw-bold">{{ $retur->produk->nama_produk ?? 'Barang Terhapus' }}</td>
+                    <td>{{ $retur->jumlah_retur }} Pcs</td>
                     <td>
-                        <ul class="mb-0 ps-3">
-                            @foreach($retur->details as $detail)
-                                <li>{{ $detail->produk->nama_produk ?? 'Unknown' }} (Qty: {{ $detail->jumlah_retur }})</li>
-                            @endforeach
-                        </ul>
+                        @if($retur->tipe_retur == 'masuk_stok')
+                            <span class="badge bg-success">Dikembalikan ke Stok</span>
+                        @else
+                            <span class="badge bg-danger">Dibuang / Rusak</span>
+                        @endif
                     </td>
+                    <td>{{ \Carbon\Carbon::parse($retur->tanggal_retur)->format('d M Y') }}</td>
+                    <td>{{ $retur->alasan_retur ?? '-' }}</td>
                 </tr>
                 @empty
                 <tr>
