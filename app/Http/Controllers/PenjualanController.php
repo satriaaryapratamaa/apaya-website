@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use App\Models\Penjualan;
-use App\Models\DetailPenjualan;
+use App\Models\Pembelian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class PenjualanController extends Controller
 {
-    public  function index()
+    public function index()
     {
-        $penjualans = Penjualan::with('details.produk')->latest()->get();
+        $penjualans = Penjualan::with('produk')->latest()->get();
 
-        //request json untuk mobile app
         if (request()->wantsJson()) {
             return response()->json($penjualans, 200);
         }
@@ -24,8 +23,8 @@ class PenjualanController extends Controller
 
     public function create()
     {
-        $produks = Produk::where('stok', '>', 0)->get(); //mengambil data produk yang tersedia (stok > 0) untuk ditampilkan
 
+        $produks = Produk::all();
         return view('penjualan.tambahPenjualan', compact('produks'));
     }
 
@@ -35,73 +34,66 @@ class PenjualanController extends Controller
 
         $validator = Validator::make($request->all(), [
             'tanggal_penjualan' => 'required|date',
-            'customer_name'     => 'nullable|string|max:255',
-            'status'            => 'required|in:lunas,hutang,dibatalkan',
             'items'             => 'required|array',
             'items.*.produk_id' => 'required|exists:produks,id',
-            'items.*.qty'       => 'required|integer|min:1',
-            'items.*.harga'     => 'required|numeric',
-            'total_bayar'       => 'required|numeric'
+            'items.*.stok_saat_ini_fisik' => 'required|integer|min:0',
         ]);
 
         if ($validator->fails()) {
-            if ($request->wantsJson()) {
-                return response()->json(['errors' => $validator->errors()], 422);
-            }
-            return redirect()->back()->withErorrs($validator)->withInput();
+            return $request->wantsJson()
+                ? response()->json(['errors' => $validator->errors()], 422)
+                : redirect()->back()->withErrors($validator)->withInput();
         }
-
 
         try {
-            //simpan data penjualan
-            $penjualan = Penjualan::create([
-                'nomor_invoice' => 'INV-' . strtoupper(uniqid()), //generate nomor invoice
-                'tanggal_penjualan' => $request->tanggal_penjualan,
-                'total_bayar' => $request->total_bayar,
-                'customer_name' => $request->customer_name,
-                'status' => $request->status
-            ]);
+            foreach ($request->items as $item) {
+                $produk = Produk::findOrFail($item['produk_id']);
 
-            //simpan detail penjualaan
-            foreach ($request->items as $item)
-                {
-                    $produk = Produk::findOrFail($item['produk_id']);
+                $stok_sebelumnya = $produk->stok_saat_ini ?? 0;
+                
+                $jumlah_pembelian = Pembelian::where('produks_id', $produk->id)
+                    ->whereDate('tanggal_pembelian', $request->tanggal_penjualan)
+                    ->sum('jumlah_masuk');
 
-                    //cek stok produk
-                    if ($produk->stok < $item['qty']) {
-                        throw new \Exception('Stok produk'. $produk->nama_produk . 'tidak cukup');
-                    }
+                $total_retur = \App\Models\Retur::where('produk_id', $produk->id)
+                    ->whereDate('tanggal_retur', $request->tanggal_penjualan)
+                    ->sum('jumlah_retur');
 
-                    DetailPenjualan::create([
-                        'penjualan_id' => $penjualan->id,
-                        'produk_id' => $item['produk_id'],
-                        'jumlah' => $item['qty'],
-                        'harga_satuan' => $item['harga']
+                $stok_saat_ini_fisik = $item['stok_saat_ini_fisik'];
+
+                $formula = $stok_saat_ini_fisik - $jumlah_pembelian - $total_retur - $stok_sebelumnya;
+                $jumlah_terjual = abs($formula);
+
+                if ($jumlah_terjual > 0) {
+                    $total_omzet = $jumlah_terjual * $produk->harga_jual;
+                    $total_modal = $jumlah_terjual * $produk->harga_beli;
+                    $total_keuntungan = $total_omzet - $total_modal;
+
+                    Penjualan::create([
+                        'produk_id'         => $produk->id,
+                        'tanggal_penjualan' => $request->tanggal_penjualan,
+                        'jumlah_terjual'    => $jumlah_terjual,
+                        'harga_jual'        => $produk->harga_jual,
+                        'total_omzet'       => $total_omzet,
+                        'total_modal'       => $total_modal,
+                        'total_keuntungan'  => $total_keuntungan,
                     ]);
-
-                    //update stok produk
-                    $produk->decrement('stok', $item['qty']);
                 }
+
+                $produk->update(['stok_saat_ini' => $stok_saat_ini_fisik]);
+            }
+
             DB::commit();
 
-            //reponse json
-            if($request->wantsJson()){
-                return response()->json(['message' => 'Penjualan berhaasil disimpan', 'data' => $penjualan->load('details.produk')], 201);
-            }
-            return redirect()->route('penjualan.index')->with('success', 'Penjualan berhasil disimpan');
+            return $request->wantsJson()
+                ? response()->json(['message' => 'Laporan stok harian berhasil disimpan'], 201)
+                : redirect()->route('penjualan.index')->with('success', 'Laporan stok harian berhasil disimpan');
+
         } catch (\Exception $e) {
             DB::rollback();
-            if ($request->wantsJson()) {
-                return response()->json(['errors' => 'terjadi kesalahan saat menambahkan penjualan' .$e->getMessage()], 500);
-            }
-            return redirect->back()->with('error', 'Terjadi kesalahan saat menambahkan penjualan:' . $e->getMessage()->withInput());
+            return $request->wantsJson()
+                ? response()->json(['errors' => $e->getMessage()], 500)
+                : redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
-    }
-
-    public function show($id)
-    {
-        $detail_penjualan = Penjualan::with('details.produk')->findOrFail($id);
-
-        return view('penjualan.index', compact('detail_penjualan'));
     }
 }

@@ -20,6 +20,7 @@
 
         .wrapper {
             display: flex;
+            overflow-y: auto;
             align-items: stretch;
             min-height: 100vh;
         }
@@ -29,10 +30,25 @@
             max-width: 250px;
             background-color: #3f51b5 !important;
             color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
             transition: all 0.3s;
             display: flex;
             flex-direction: column;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1040;
+        }
+
+        #sidebar::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #sidebar:::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
         }
 
         #sidebar.active {
@@ -79,15 +95,34 @@
         }
 
         #content {
-            width: 100%;
+            margin-left: 250px;
+            margin-top: 50px;
+            width: calc(100% - 250px);
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        #sidebar.active ~ #content {
+            margin-left: 0;
+            width: 100%;
         }
 
         .navbar-custom {
             background: #fff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             padding: 15px 20px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: calc(100% - 250px);
+            z-index: 1030;
+            transition: all 0.3s;
+            /* width: 100%; */
+        }
+        #sidebar.active ~ #content .navbar-custom {
+            width: 100%;
         }
 
         .arrow {
@@ -105,7 +140,7 @@
 
     <nav id="sidebar">
         <div class="sidebar-header">
-            <h4 class="mb-0 fw-bold">UMKM POS</h4>
+            <h4 class="mb-0 fw-bold">UMKM</h4>
         </div>
 
         <ul class="components list-unstyled">
@@ -115,46 +150,108 @@
                 </a>
             </li>
             <li>
-                <a href='#' class="{{ request()->is('retur') ? 'active' : '' }}">
-                    <i class="fas fa-undo-alt"></i> Retur Penjualan
-                </a>
-            </li>
-            <li>
                 <a href='#submenuPenjualan' data-bs-toggle="collapse" class="d-flex justify-content-between align-items-center {{ request()->is('penjualan.*') ? 'active' : 'collapse' }}" aria-expanded="{{request()->routeIs('penjualan.*') ? 'true' : 'false'}}">
                     <span><i class="bi bi-cart2"></i>Penjualan</span><i class="bi bi-chevron-down arrow"></i>
                 </a>
                 <div class="collapse {{request()->routeIs('penjualan.*') ? 'show' : ''}}" id="submenuPenjualan">
                     <ul>
                         <li>
-                           <a href="{{route('penjualan.create')}}" class="{{ request()->routeIs('penjualan.create') ? 'active' : '' }}">
-                               <i class="fas fa-desktop"></i> Tambah Penjualan
-                           </a>
-                       </li>
-                       <li>
-                           <a href="{{route('penjualan.index')}}" class="{{ request()->routeIs('penjualan.index') ? 'active' : '' }}">
-                               <i class="fas fa-file-invoice-dollar"></i> Riwayat Penjualan
-                           </a>
-                       </li>
+                            <a href="{{route('penjualan.create')}}" class="{{ request()->routeIs('penjualan.create') ? 'active' : '' }}">
+                                <i class="fas fa-desktop"></i> Tambah Penjualan
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('penjualan.index')}}" class="{{ request()->routeIs('penjualan.index') ? 'active' : '' }}">
+                                <i class="fas fa-file-invoice-dollar"></i> Riwayat Penjualan
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </li>
-            <hr>
-            <h5 class="p-1 ms-2">Master Data</h5>
             <li>
-                <a href="#" class="{{ request()->is('produk*') ? 'active' : '' }}">
-                    <i class="fas fa-box"></i> Master Produk
+                <a href='{{ route('retur.index') }}' class="{{ request()->routeIs('retur.*') ? 'active' : '' }}">
+                    <i class="fas fa-undo-alt"></i> Retur Penjualan
+                </a>
+            </li>
+            <li>
+                <a href='#' class="">
+                    <i class="bi bi-truck"></i> Pembelian
+                </a>
+            </li>
+            <li>
+                <a href='#' class="">
+                    <i class="bi bi-box-seam"></i> Retur Pembelian
+                </a>
+            </li>
+            <li>
+                <a href='#' class="">
+                    <i class="bi bi-wallet"></i> Pencatatan Biaya
                 </a>
             </li>
             <hr>
-            <h5 class="p-1 ms-2">Laporan</h5>
+            <div class="fs-10 ms-3">Master Data</div>
             <li>
-                <a href='#' class="{{ request()->is('retur') ? 'active' : '' }}">
+                <a href="#" class="{{ request()->is('produk*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i> Pegawai
+                </a>
+            </li>
+            <li>
+                <a href="#" class="{{ request()->is('produk*') ? 'active' : '' }}">
+                    <i class="bi bi-person"></i> Pengguna
+                </a>
+            </li>
+            <li>
+                <a href="#" class="{{ request()->is('produk*') ? 'active' : '' }}">
+                    <i class="bi bi-box-seam"></i> Barang
+                </a>
+            </li>
+            <li>
+                <a href="#" class="{{ request()->is('produk*') ? 'active' : '' }}">
+                    <i class="bi bi-building"></i> Supplier
+                </a>
+            </li>
+            <li>
+                <a href="#" class="{{ request()->is('produk*') ? 'active' : '' }}">
+                    <i class="bi bi-wallet"></i> Akun Biaya
+                </a>
+            </li>
+            <hr>
+            <div class="fs-10 ms-3">Laporan</div>
+            <li>
+                <a href='{{ route('laporan.penjualan') }}' class="{{ request()->routeIs('laporan.penjualan') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark-medical"></i> Lap.Penjualan
                 </a>
             </li>
             <li>
-                <a href='#' class="{{ request()->is('retur') ? 'active' : '' }}">
+                <a href='#' class="">
+                    <i class="bi bi-file-earmark-medical"></i> Lap.Pembelian
+                </a>
+            </li>
+            <li>
+                <a href='{{ route('laporan.retur') }}' class="{{ request()->routeIs('laporan.retur') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark-medical"></i> Lap.ReturPenjualan
+                </a>
+            </li>
+            <li>
+                <a href='#' class="">
+                    <i class="bi bi-file-earmark-medical"></i> Lap.ReturPembelian
+                </a>
+            </li>
+            <li>
+                <a href='#' class="">
+                    <i class="bi bi-file-earmark-medical"></i> Lap.StokBarang
+                </a>
+            </li>
+            <li>
+                <a href='#' class="">
+                    <i class="bi bi-file-earmark-medical"></i> Lap.RugiLaba
+                </a>
+            </li>
+            <hr>
+            <div class="fs-10 ms-3">Pengaturan</div>
+            <li>
+                <a href='#' class="">
+                    <i class="bi bi-shield"></i> Hak Akses
                 </a>
             </li>
         </ul>

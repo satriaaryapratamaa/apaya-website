@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('adminlte::page')
 
 @section('content')
     <div class="container py-5">
@@ -16,39 +16,52 @@
 
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-4">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger rounded-3 border-0">
+                                <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+                            </div>
+                        @endif
+                        @if (session('success'))
+                            <div class="alert alert-success rounded-3 border-0">
+                                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                            </div>
+                        @endif
                         <form action="{{route('penjualan.store')}}" method="post">
                             @csrf
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <label for="namaPenjualan" class="form-label small fw-semibold text-secondary">Nama Pelanggan</label>
-                                    <input type="text" name="namaPenjualan" class="form-control form-control-lg bg-light border-0 shadow-none" id="namaPenjualan" placeholder="Contoh: Budi Santoso" required>
+                                    <label class="form-label small fw-semibold text-secondary">Tanggal Laporan Harian</label>
+                                    <input type="date" name="tanggal_penjualan" class="form-control bg-light border-0 shadow-none" value="{{date('Y-m-d')}}" required>
                                 </div>
-
-                                <div class="col-12">
-                                    <label for="invoice" class="form-label small fw-semibold text-secondary">No. Invoice</label>
-                                    <input type="text" name="invoice" class="form-control bg-light border-0" id="invoice" value="INV-20231012-001" readonly>
-                                    <div class="form-text">ID Transaksi dibuat otomatis oleh sistem.</div>
-                                </div>
-
-                                <div class="col-md-7">
-                                    <label for="totalBayar" class="form-label small fw-semibold text-secondary">Total Bayar</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light border-0">Rp</span>
-                                        <input type="number" name="totalBayar" class="form-control form-control-lg bg-light border-0 shadow-none" id="totalBayar" placeholder="0" required>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-5">
-                                    <label for="status" class="form-label small fw-semibold text-secondary">Status Pembayaran</label>
-                                    <select name="status" id="status" class="form-select form-select-lg bg-light border-0 shadow-none">
-                                        <option value="lunas" selected>Lunas</option>
-                                        <option value="hutang">Hutang</option>
-                                        <option value="dibatalkan">Dibatalkan</option>
-                                    </select>
-                                </div>
-
                                 <div class="col-12 mt-4">
-                                    <button type="submit" class="btn btn-primary">Simpan Transaksi</button>
+                                    <label class="form-label small fw-semibold text-secondary">Cek & Laporan Sisa Stok Fisik Produk</label>
+                                    <table class="table table-bordered text-center" id="productTable">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th style="width: 40%">Produk</th>
+                                                <th style="width: 25%">Stok Sistem Saat Ini</th>
+                                                <th style="width: 25%">Stok Fisik di Rak</th>
+                                                <th style="width: 10%">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="addProduct">
+                                        <i class="bi bi-plus-circle me-1"></i>Tambah Produk ke Laporan
+                                    </button>
+                                </div>
+
+                                <div class="col-12 mt-5">
+                                    <button type="submit" class="btn btn-primary w-100">Simpan Data Penjualan</button>
                                     <a href="{{route('penjualan.index')}}" class="btn btn-link w-100 text-decoration-none text-muted mt-2">Batalkan</a>
                                 </div>
                             </div>
@@ -58,4 +71,46 @@
             </div>
         </div>
     </div>
+    <script>
+        let rowIdx = 0;
+        document.getElementById('addProduct').addEventListener('click', function() {
+            rowIdx++;
+            const tbody = document.querySelector('#productTable tbody');
+            const newRow =`
+                <tr id="row${rowIdx}">
+                    <td>
+                        <select name="items[${rowIdx}][produk_id]" class="form-select select-produk" required>
+                            <option value="">---Pilih Produk---</option>
+                            @foreach($produks as $p)
+                                <option value="{{$p->id}}" data-stok="{{$p->stok_saat_ini}}">{{$p->nama_produk}}</option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control stok-server text-center" readonly placeholder="Otomatis">
+                    </td>
+                    <td>
+                        <input type="number" name="items[${rowIdx}][stok_saat_ini_fisik]" class="form-control text-center" min="0" placeholder="Masukkan 0 jika habis..." required>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            tbody.insertAdjacentHTML('beforeend', newRow);
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('select-produk')) {
+                const stokVal = e.target.options[e.target.selectedIndex].dataset.stok;
+                const row = e.target.closest('tr');
+                row.querySelector('.stok-server').value = stokVal ? stokVal : '';
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove') || e.target.closest('.remove')) {
+                e.target.closest('tr').remove();
+            }
+        });
+    </script>
 @endsection

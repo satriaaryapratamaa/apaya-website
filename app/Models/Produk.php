@@ -11,17 +11,18 @@ class Produk extends Model
     protected $fillable = [
         'nama_produk',
         'sku',
-        'harga_barang',
-        'stok',
+        'harga_beli',
+        'harga_jual',
+        'stok_saat_ini',
     ];
 
-    public function detailPenjualans()
+    public function pembelians(): HasMany
     {
-        return $this->hasMany(DetailPenjualan::class);
+        return $this->hasMany(Pembelian::class, 'produk_id');
     }
 
-    public function detailReturs()
+    public function returs(): HasMany
     {
-        return $this->hasMany(DetailRetur::class);
+        return $this->hasMany(Retur::class, 'produk_id');
     }
 }

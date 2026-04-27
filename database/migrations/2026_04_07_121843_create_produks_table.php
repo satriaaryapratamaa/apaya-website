@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('nama_produk');
             $table->string('sku')->unique(); //kode unik untuk setiap produk (stock keeping unit)
-            $table->decimal('harga_barang', 15, 2);
-            $table->integer('stok')->default(0);
+            $table->decimal('harga_beli', 15, 2);
+            $table->decimal('harga_jual', 15, 2);
+            $table->integer('stok_saat_ini')->default(0);
             $table->timestamps();
         });
     }

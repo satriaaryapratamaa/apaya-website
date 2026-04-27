@@ -13,11 +13,16 @@ return new class extends Migration
     {
         Schema::create('penjualans', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_invoice')->unique();
+            $table->foreignId('produk_id')->constrained('produks')->onDelete('cascade');
             $table->date('tanggal_penjualan');
-            $table->decimal('total_bayar', 15, 2);
-            $table->string('customer_name')->nullable();
-            $table->enum('status', ['lunas', 'hutang', 'dibatalkan'])->default('lunas');
+
+            //dataa perhitungan
+            $table->integer('jumlah_terjual');
+            $table->decimal('harga_jual', 15, 2);
+            $table->decimal('total_omzet',  15, 2);
+
+            $table->decimal('total_modal', 15, 2);
+            $table->decimal('total_keuntungan', 15, 2);
             $table->timestamps();
         });
     }

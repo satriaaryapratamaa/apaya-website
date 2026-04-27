@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('returs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('penjualans_id')->constrained('penjualans')->onDelete('cascade'); //menyambungkan retur dengan penjualan
-            $table->date('tanggal_retur');
-            $table->decimal('total_retur', 15, 2);
+            $table->foreignId('produk_id')->constrained('produks')->onDelete('cascade'); //menyambungkan retur dengan penjualan
+            $table->integer('jumlah_retur');
+            $table->enum('tipe_retur', ['masuk_stok', 'buang_rusak']);
             $table->text('alasan_retur')->nullable();
+            $table->date('tanggal_retur');
             $table->timestamps();
         });
     }

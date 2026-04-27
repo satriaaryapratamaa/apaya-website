@@ -3,23 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Retur extends Model
 {
     protected $fillable = [
-        'penjualan_id',
+        'produk_id',
+        'jumlah_retur',
+        'tipe_retur',
         'tanggal_retur',
-        'total_retur',
         'alasan_retur',
     ];
 
-    public function penjualan()
+    public function produk(): BelongsTo
     {
-        return $this->belongsTo(Penjualan::class);
-    }
-    
-    public function details()
-    {
-        return $this->hasMany(DetailRetur::class);
+        return $this->belongsTo(Produk::class, 'produk_id');
     }
 }
