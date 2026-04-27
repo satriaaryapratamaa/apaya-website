@@ -7,6 +7,12 @@
     <div class="card border-0 shadow-sm p-4 mb-4 rounded-3 text-sm">
         <h4 class="fw-bold mb-4">Pencatatan Retur Barang</h4>
         
+        @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="alert alert-danger">
                 Pencatatan gagal:

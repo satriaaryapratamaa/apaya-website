@@ -19,7 +19,6 @@ class ReturController extends Controller
 
     public function create()
     {
-        // Ambil daftar produk untuk dipilih yang mana yang diretur
         $produks = Produk::all();
         return view('retur.create', compact('produks'));
     }
@@ -27,11 +26,11 @@ class ReturController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'produk_id'     => 'required|exists:produks,id',
-            'jumlah_retur'  => 'required|integer|min:1',
-            'tipe_retur'    => 'required|in:masuk_stok,buang_rusak',
+            'produk_id' => 'required|exists:produks,id',
+            'jumlah_retur' => 'required|integer|min:1',
+            'tipe_retur' => 'required|in:masuk_stok,buang_rusak',
             'tanggal_retur' => 'required|date',
-            'alasan_retur'  => 'nullable|string',
+            'alasan_retur' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -40,27 +39,35 @@ class ReturController extends Controller
                 : redirect()->back()->withErrors($validator)->withInput();
         }
 
+        $totalTerjual = \App\Models\Penjualan::where('produk_id', $request->produk_id)->sum('jumlah_terjual');
+        $totalTelahDiretur = \App\Models\Retur::where('produk_id', $request->produk_id)->sum('jumlah_retur');
+        $maksimalRetur = $totalTerjual - $totalTelahDiretur;
+
+        if ($request->jumlah_retur > $maksimalRetur) {
+            $pesanEror = "Validasi Gagal: Barang yang diretur melebihi batasan. Sisa barang yang bisa diretur untuk produk ini maksimal hanya {$maksimalRetur} Pcs.";
+            return $request->wantsJson()
+                ? response()->json(['errors' => ['jumlah_retur' => [$pesanEror]]], 422)
+                : redirect()->back()->with('error', $pesanEror)->withInput();
+        }
+
         DB::beginTransaction();
 
         try {
-            // Simpan data retur (Langsung per produk, sesuai revisi tanpa nota)
             $retur = Retur::create([
-                'produk_id'     => $request->produk_id,
-                'jumlah_retur'  => $request->jumlah_retur,
-                'tipe_retur'    => $request->tipe_retur,
+                'produk_id' => $request->produk_id,
+                'jumlah_retur' => $request->jumlah_retur,
+                'tipe_retur' => $request->tipe_retur,
                 'tanggal_retur' => $request->tanggal_retur,
-                'alasan_retur'  => $request->alasan_retur,
+                'alasan_retur' => $request->alasan_retur,
             ]);
 
             // Logika Update Stok
             $produk = Produk::findOrFail($request->produk_id);
 
-            // Jika tipe retur adalah 'masuk_stok' (barang kembali ke toko dan bisa dijual lagi)
+            // Jika tipe retur adalah masuk_stok, barang dikembalikan ke rak
             if ($request->tipe_retur == 'masuk_stok') {
-                $produk->increment('stok', $request->jumlah_retur);
+                $produk->increment('stok_saat_ini', $request->jumlah_retur);
             }
-            // Jika tipe 'buang_rusak', stok tidak bertambah karena barang dibuang.
-            // Data tetap disimpan di tabel retur sebagai catatan log kenapa stok berkurang/hilang.
 
             DB::commit();
 
