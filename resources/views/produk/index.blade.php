@@ -44,7 +44,19 @@
                             <td class="py-3">Rp {{ number_format($produk->harga_beli, 0, ',', '.') }}</td>
                             <td class="py-3">Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</td>
                             <td class="py-3 text-center">
-                                <a href="{{ route('produk.edit', $produk->id) }}" class="btn btn-sm btn-outline-primary shadow-sm"><i class="fas fa-edit"></i> Edit</a>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{{ route('produk.edit', $produk->id) }}" class="btn btn-sm btn-outline-primary shadow-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+
+                                    <form action="{{ route('produk.destroy', $produk->id) }}" method="POST" onsubmit="return confirm('Apakah kamu yakin ingin menghapus produk ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm">
+                                            <i class="fas fa-trash"></i> Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @empty

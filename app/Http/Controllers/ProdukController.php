@@ -80,4 +80,16 @@ class ProdukController extends Controller
             return redirect()->back()->with('error', 'Gagal memperbarui barang: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function destroy($id)
+    {
+        $produk = Produk::findOrFail($id);
+
+        try {
+            $produk->delete();
+            return redirect()->route('produk.index')->with('success', 'Data Master Barang berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
+        }
+    }
 }
