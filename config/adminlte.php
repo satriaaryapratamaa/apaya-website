@@ -374,13 +374,13 @@ return [
             'submenu' => [
                 [
                     'text' => 'Laporan Penjualan',
-                    'url'  => '#',
+                    'route'  => 'laporan.penjualan',
                     'icon' => 'fas fa-fw fa-file-invoice-dollar',
                 ],
                 [
-                    'text' => 'Laporan Pembelian',
-                    'url'  => '#',
-                    'icon' => 'fas fa-fw fa-file-invoice',
+                    'text' => 'Laporan Retur',
+                    'route'  => 'laporan.retur',
+                    'icon' => 'fas fa-fw fa-undo-alt',
                 ],
                 [
                     'text' => 'Laporan Biaya',
