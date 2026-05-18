@@ -10,8 +10,20 @@ class ProdukController extends Controller
 {
     public function index()
     {
-        $produks = Produk::latest()->get();
-        return view('produk.index', compact('produks'));
+        // $produks = Produk::latest()->get();
+        $prods = Produk::get();
+
+        if (request()->segment(1) === 'api') {
+            return response()->json([
+                'error' => false,
+                'list' => $prods,
+            ]);
+        }
+        return view('produk.index', [
+            // 'produks' => $produks,
+            'title' => 'Daftar Produk',
+            'data' => $prods,
+        ]);
     }
 
     public function create()
