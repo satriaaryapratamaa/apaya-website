@@ -12,6 +12,7 @@ Route::resource('produk', ProdukController::class);
 
 Route::get('/admin/pages/index', [PenjualanController::class, 'index'])->name('penjualan.index');
 Route::get('/admin/pages/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');
+Route::get('/admin/pages/editJualan{id}', [PenjualanController::class, 'edit'])->name('penjualan.edit');
 Route::post('/tambahJualan', [PenjualanController::class, 'store'])->name('penjualan.tambahPenjualan');
 Route::resource('/admin/pages/penjualan', PenjualanController::class);
 

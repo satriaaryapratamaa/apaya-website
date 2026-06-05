@@ -35,7 +35,7 @@ class DashboardController extends Controller
                                 DB::raw('SUM(total_omzet) as total_jual'),
                                 DB::raw('SUM(total_keuntungan) as total_untung')
                             )->first();
-        
+
         $lastTotalJual = $statsLast->total_jual ?? 0;
         $lastTotalUntung = $statsLast->total_untung ?? 0;
 
@@ -45,7 +45,7 @@ class DashboardController extends Controller
         $totalBeli = \App\Models\Pembelian::whereMonth('tanggal_pembelian', $currentMonth)
                             ->whereYear('tanggal_pembelian', $currentYear)
                             ->sum(DB::raw('jumlah_masuk * harga_beli_satuan'));
-        
+
         $lastTotalBeli = \App\Models\Pembelian::whereMonth('tanggal_pembelian', $lastMonth)
                             ->whereYear('tanggal_pembelian', $lastMonthYear)
                             ->sum(DB::raw('jumlah_masuk * harga_beli_satuan'));
@@ -59,8 +59,8 @@ class DashboardController extends Controller
             $labelBulan[] = $monthDate->translatedFormat('M'); // Jan, Feb, Mar
 
             $sumSales = Penjualan::whereMonth('tanggal_penjualan', $monthDate->month)
-                                 ->whereYear('tanggal_penjualan', $monthDate->year)
-                                 ->sum('total_omzet');
+                                ->whereYear('tanggal_penjualan', $monthDate->year)
+                                ->sum('total_omzet');
             $dataPenjualan[] = $sumSales;
         }
 
