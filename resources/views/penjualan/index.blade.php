@@ -19,6 +19,7 @@
                             <th class="text-danger">Qty Terjual</th>
                             <th>Harga Jual</th>
                             <th>Total Penjualan</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,6 +33,11 @@
                                 <td class="text-danger fw-bold">-{{ $p->jumlah_terjual }}</td>
                                 <td>Rp {{ number_format($p->harga_jual, 0, ',', '.') }}</td>
                                 <td class="fw-bold">Rp {{ number_format($p->total_omzet, 0, ',', '.') }}</td>
+                                <td class="py-3 text-center gap-2">
+                                    <a href="{{ route('penjualan.edit', $p->id) }}" class="btn btn-sm btn-outline-primary shadow-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr>

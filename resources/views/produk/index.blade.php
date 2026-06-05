@@ -30,7 +30,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($produks as $produk)
+                        @forelse($data as $produk)
                         <tr>
                             <td class="px-4 py-3 fw-bold text-secondary">{{ $produk->sku }}</td>
                             <td class="py-3 font-weight-bold text-dark">{{ $produk->nama_produk }}</td>

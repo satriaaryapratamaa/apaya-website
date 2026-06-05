@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Produk;
 use App\Models\Penjualan;
 use App\Models\Pembelian;
+use App\Models\Retur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -50,12 +51,12 @@ class PenjualanController extends Controller
                 $produk = Produk::findOrFail($item['produk_id']);
 
                 $stok_sebelumnya = $produk->stok_saat_ini ?? 0;
-                
+
                 $jumlah_pembelian = Pembelian::where('produks_id', $produk->id)
                     ->whereDate('tanggal_pembelian', $request->tanggal_penjualan)
                     ->sum('jumlah_masuk');
 
-                $total_retur = \App\Models\Retur::where('produk_id', $produk->id)
+                $total_retur = Retur::where('produk_id', $produk->id)
                     ->whereDate('tanggal_retur', $request->tanggal_penjualan)
                     ->sum('jumlah_retur');
 
@@ -95,5 +96,28 @@ class PenjualanController extends Controller
                 ? response()->json(['errors' => $e->getMessage()], 500)
                 : redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
+    }
+
+    public function edit($id)
+    {
+        $penjualan = Penjualan::with('produk')->findOrFail($id);
+        return view('penjualan.edit', compact('penjualan'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $penjualan = Penjualan::findOrFail($id);
+
+        $request->validate([
+            'tanggal_penjualan' => 'required|date',
+            'jumlah_terjual' => 'required|integer|min:1'
+        ]);
+
+        $penjualan->update([
+            'tanggal_penjualan' => $request->tanggal_penjualan,
+            'jumlah_terjual' => $request->jumlah_terjual
+        ]);
+
+        return redirect()->route('penjualan.index')->with('success', 'Data penjualan berhasil diperbarui');
     }
 }
