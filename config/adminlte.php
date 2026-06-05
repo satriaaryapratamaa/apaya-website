@@ -327,7 +327,7 @@ return [
             'submenu' => [
                 [
                     'text' => 'Produk',
-                    'route'  => 'produk.index',
+                    'url'  => 'admin/pages/produk',
                     'icon' => 'fas fa-fw fa-box',
                 ],
                 [
@@ -348,7 +348,7 @@ return [
             'submenu' => [
                 [
                     'text' => 'Penjualan',
-                    'route'  => 'penjualan.index',
+                    'url'  => 'admin/pages/penjualan',
                     'icon' => 'fas fa-fw fa-shopping-cart',
                 ],
                 [
@@ -363,7 +363,7 @@ return [
                 ],
                 [
                     'text' => 'Retur',
-                    'route'  => 'retur.index',
+                    'url'  => 'admin/pages/retur',
                     'icon' => 'fas fa-fw fa-undo',
                 ],
             ],

@@ -7,6 +7,21 @@
         <a href="{{ route('retur.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Tambah Retur</a>
     </div>
 
+    @if(session('error'))
+        <div class="alert alert-danger border-0 shadow-sm rounded-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-times-circle me-2"></i>
+                <strong>Gagal: </strong> &nbsp; {{ session('error') }}
+            </div>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="alert alert-success border-0 shadow-sm rounded-3">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        </div>
+    @endif
+
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="table-light">

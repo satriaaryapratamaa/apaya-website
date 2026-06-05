@@ -13,12 +13,6 @@ class ProdukController extends Controller
         // $produks = Produk::latest()->get();
         $prods = Produk::get();
 
-        if (request()->segment(1) === 'api') {
-            return response()->json([
-                'error' => false,
-                'list' => $prods,
-            ]);
-        }
         return view('produk.index', [
             // 'produks' => $produks,
             'title' => 'Daftar Produk',

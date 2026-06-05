@@ -15,10 +15,6 @@ class PenjualanController extends Controller
     public function index()
     {
         $penjualans = Penjualan::with('produk')->latest()->get();
-
-        if (request()->wantsJson()) {
-            return response()->json($penjualans, 200);
-        }
         return view('penjualan.index', compact('penjualans'));
     }
 
@@ -39,12 +35,6 @@ class PenjualanController extends Controller
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.stok_saat_ini_fisik' => 'required|integer|min:0',
         ]);
-
-        if ($validator->fails()) {
-            return $request->wantsJson()
-                ? response()->json(['errors' => $validator->errors()], 422)
-                : redirect()->back()->withErrors($validator)->withInput();
-        }
 
         try {
             foreach ($request->items as $item) {
@@ -86,15 +76,11 @@ class PenjualanController extends Controller
 
             DB::commit();
 
-            return $request->wantsJson()
-                ? response()->json(['message' => 'Laporan stok harian berhasil disimpan'], 201)
-                : redirect()->route('penjualan.index')->with('success', 'Laporan stok harian berhasil disimpan');
+            return redirect()->route('penjualan.index')->with('success', 'Laporan stok harian berhasil disimpan');
 
         } catch (\Exception $e) {
             DB::rollback();
-            return $request->wantsJson()
-                ? response()->json(['errors' => $e->getMessage()], 500)
-                : redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage())->withInput();
         }
     }
 
