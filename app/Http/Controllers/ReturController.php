@@ -33,21 +33,12 @@ class ReturController extends Controller
             'alasan_retur' => 'nullable|string',
         ]);
 
-        if ($validator->fails()) {
-            return $request->wantsJson()
-                ? response()->json(['errors' => $validator->errors()], 422)
-                : redirect()->back()->withErrors($validator)->withInput();
-        }
-
         $totalTerjual = \App\Models\Penjualan::where('produk_id', $request->produk_id)->sum('jumlah_terjual');
         $totalTelahDiretur = \App\Models\Retur::where('produk_id', $request->produk_id)->sum('jumlah_retur');
         $maksimalRetur = $totalTerjual - $totalTelahDiretur;
 
         if ($request->jumlah_retur > $maksimalRetur) {
-            $pesanEror = "Validasi Gagal: Barang yang diretur melebihi batasan. Sisa barang yang bisa diretur untuk produk ini maksimal hanya {$maksimalRetur} Pcs.";
-            return $request->wantsJson()
-                ? response()->json(['errors' => ['jumlah_retur' => [$pesanEror]]], 422)
-                : redirect()->back()->with('error', $pesanEror)->withInput();
+            return redirect()->route('retur.index')->with('error', "Barang yang diretur melebihi batasan. Sisa barang yang bisa diretur untuk produk ini maksimal hanya {$maksimalRetur} Pcs.")->withInput();
         }
 
         DB::beginTransaction();
@@ -71,21 +62,12 @@ class ReturController extends Controller
 
             DB::commit();
 
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'message' => 'Retur berhasil disimpan',
-                    'data' => $retur->load('produk')
-                ], 201);
-            }
-
             return redirect()->route('retur.index')->with('success', 'Data retur berhasil disimpan');
 
         } catch (\Exception $e) {
             DB::rollback();
 
-            return $request->wantsJson()
-                ? response()->json(['errors' => 'Gagal menyimpan retur: ' . $e->getMessage()], 500)
-                : redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return redirect()->route('retur.index')->with('error', 'Terjadi kesalahan saat menyimpan data retur: ' . $e->getMessage())->withInput();
         }
     }
 }

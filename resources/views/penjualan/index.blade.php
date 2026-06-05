@@ -6,6 +6,13 @@
     <div class="container-fluid p-4">
         <h2 class="mb-4 fw-bold">Riwayat Penjualan</h2>
         <button class="mb-4 btn btn-primary"><a href="{{route('penjualan.create')}}" class="text-white text-decoration-none">Tambah Penjualan</a></button>
+
+        @if(session('success'))
+            <div class="alert alert-success border-0 shadow-sm rounded-3">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            </div>
+        @endif
+
         <div class="card border-0 rounded-3 shadow-sm p-4 mb-4">
             <div class="table-responsive">
                 <table class="table table-hover">

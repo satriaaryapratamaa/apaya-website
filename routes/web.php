@@ -8,22 +8,35 @@ use App\Http\Controllers\ReturController;
 use App\Http\Controllers\ProdukController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-Route::resource('produk', ProdukController::class);
+// Route::resource('produk', ProdukController::class);
 
-Route::get('/admin/pages/index', [PenjualanController::class, 'index'])->name('penjualan.index');
-Route::get('/admin/pages/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');
-Route::get('/admin/pages/editJualan{id}', [PenjualanController::class, 'edit'])->name('penjualan.edit');
-Route::post('/tambahJualan', [PenjualanController::class, 'store'])->name('penjualan.tambahPenjualan');
-Route::resource('/admin/pages/penjualan', PenjualanController::class);
+// Route::get('/admin/pages/index', [PenjualanController::class, 'index'])->name('penjualan.index');
+// Route::get('/admin/pages/tambahJualan', [PenjualanController::class, 'create'])->name('penjualan.tambahPenjualan');
+// Route::get('/admin/pages/editJualan{id}', [PenjualanController::class, 'edit'])->name('penjualan.edit');
+// Route::post('/tambahJualan', [PenjualanController::class, 'store'])->name('penjualan.tambahPenjualan');
+Route::prefix('admin/pages')->group(function () {
 
+    Route::resource('penjualan', PenjualanController::class)->names([
+        'index'  => 'penjualan.index',
+        'create' => 'penjualan.create',
+        'store'  => 'penjualan.store',
+        'edit'   => 'penjualan.edit',
+        'update' => 'penjualan.update',
+    ]);
 
-Route::resource('retur', ReturController::class);
+    Route::resource('produk', ProdukController::class)->names([
+        'index'  => 'produk.index',
+        'create' => 'produk.create',
+        'store'  => 'produk.store',
+        'edit'   => 'produk.edit',
+        'update' => 'produk.update',
+    ]);
 
-Route::get('/api/penjualan/{id}', function($id) {
-    return App\Models\DetailPenjualan::join('produks', 'detail_penjualans.produks_id', '=', 'produks.id')
-        ->where('penjualans_id', $id)
-        ->select('detail_penjualans.*', 'produks.nama_produk', 'produks.harga_barang')
-        ->get();
+    Route::resource('retur', ReturController::class)->names([
+        'index' => 'retur.index',
+        'create' => 'retur.create',
+        'store' => 'retur.store',
+    ]);
 });
 
 
