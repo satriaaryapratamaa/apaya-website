@@ -14,6 +14,7 @@ class Produk extends Model
         'harga_beli',
         'harga_jual',
         'stok_saat_ini',
+        'barcode',
     ];
 
     public function pembelians(): HasMany

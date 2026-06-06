@@ -36,4 +36,6 @@ Route::apiResource('retur', ReturControllerApi::class)->names([
     'destroy' => 'api.retur.destroy',
 ]);
 
+Route::post('scan-barcode', [ScanBarcodeControllerApi::class, 'scanBarcode'])->name('api.scanBarcode');
+
 // Route::resource('product',  ProdukController::class);
