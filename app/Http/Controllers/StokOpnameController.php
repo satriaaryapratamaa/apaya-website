@@ -31,19 +31,16 @@ class StokOpnameController extends Controller
             foreach ($request->items as $item) {
                 $produk = Produk::findOrFail($item['produk_id']);
 
-                $stok_awal = $produk->stok; // Stok terakhir di sistem
-                $stok_sisa = $item['stok_sisa']; // Stok nyata di rak
+                $stok_awal = $produk->stok; 
+                $stok_sisa = $item['stok_sisa']; 
 
-                // Hitung berapa yang terjual
-                // Rumus: Stok Awal - Stok Sisa = Terjual
-                // (Catatan: Stok awal sudah termasuk pembelian yang diinput sebelumnya)
+                
                 $terjual = $stok_awal - $stok_sisa;
 
                 if ($terjual > 0) {
                     $omzet = $terjual * $produk->harga_jual;
                     $modal = $terjual * $produk->harga_beli;
 
-                    // Simpan hasil kalkulasi ke tabel penjualans (Tanpa Nota)
                     Penjualan::create([
                         'produk_id' => $produk->id,
                         'tanggal_penjualan' => $request->tanggal,
@@ -55,7 +52,6 @@ class StokOpnameController extends Controller
                     ]);
                 }
 
-                // Update stok di master produk agar sesuai dengan kondisi fisik terbaru
                 $produk->update(['stok' => $stok_sisa]);
             }
 
