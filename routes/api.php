@@ -11,6 +11,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('produk/history', [ProdukControllerApi::class, 'history']);
+Route::get('produk/notification', [ProdukControllerApi::class, 'notifikasi']);
+
 Route::apiResource('penjualan', PenjualanControllerApi::class)->names([
     'index'   => 'api.penjualan.index',
     'store'   => 'api.penjualan.store',

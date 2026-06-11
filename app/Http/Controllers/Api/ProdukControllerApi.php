@@ -162,4 +162,43 @@ class ProdukControllerApi extends Controller
             ], 500);
         }
     }
+
+    public function history()
+    {
+        $history = Produk::orderBy('updated_at', 'desc')->get();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Riwayat perubahan stok berhasil diambil',
+            'data' => $history
+        ], 200);
+    }
+
+    public function notifikasi()
+    {
+        $lowStockProducts = Produk::where('stok_saat_ini', '<=', 10)->get();
+
+        $notifikasi = [];
+
+        foreach($lowStockProducts as $produk) {
+            $notifikasi[] = [
+                'type' => 'peringatan_stok',
+                'message' => "Stok {$produk->nama_produk} dibawah minimum! Sisa tinggal {$produk->stok_saat_ini}",
+                'date' => $produk->updated_at->format('Y-m-d H:i'),
+                'color' => 'orange'
+            ];
+        }
+
+        $notifikasi[] = [
+            'type' => 'info',
+            'message' => "Sistem Master Data berjalan normal",
+            'date' => date('Y-m-d H:i'),
+            'color' => 'green'
+        ];
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifikasi berhasil diambil',
+            'data' => $notifikasi
+        ], 200);
+    }
 }
